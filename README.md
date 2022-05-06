@@ -14,7 +14,7 @@ The aim of the task is to read in, prepare and display the optical image data of
 ### [Task](https://github.com/CopyrightCF500/MedizinischeBildverarbietung/blob/main/Lab2/mbv_aufgabe_xray_mk002.pdf)
 
 ## Prepare Workspace
-Because the Mice2_cetu2_131213_210250_color.fits and Mice2_cetu2_131213_210250_fluo.fits files are too large, you have to put them own your own into the Lab1/res folder that you have to create aswell.
+Because the Mice2_cetu2_131213_210250_color.fits and Mice2_cetu2_131213_210250_fluo.fits files are too large, you have to put them on your own into the Lab1/res folder that you have to create aswell.
 
 ## Requiered Python Modules
 
