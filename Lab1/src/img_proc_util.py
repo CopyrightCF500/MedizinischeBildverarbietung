@@ -27,9 +27,18 @@ class ImgProcUtil:
         :return: One image of the fits file
         :rtype: numpy.ndarray
         """
-        color_image_hdul = fits.open(path)
-        color_image_data = color_image_hdul[100].data
-        return color_image_data
+
+        img_list = []
+        try:
+            color_image_hdul = fits.open(path)
+
+            for image in color_image_hdul[1:]:
+                img_list.append(image.data)
+
+            return img_list
+
+        except FileNotFoundError:
+            print("Error while trying to read color image fits file!")
 
     @staticmethod
     def print_hdul(hdul: fits.HDUList):
