@@ -1,7 +1,6 @@
 #!/usr/bin/python3
+from PIL import Image
 
-from astropy.io import fits
-from astropy.table import Table
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,17 +16,16 @@ class OpticalImaging:
 
     def run(self):
         self.color_image_data = ImgProcUtil.ImgProcUtil.read_fits_color_file('../res/Mice2_cetu2_131213_210250_color.fits')
-        print("test")
         self.prepare_data()
 
     def prepare_data(self):
+        # data type has to be uint16
         self.color_image_data = np.uint16(self.color_image_data)
+        # Convert
         self.color_image_rgb = cv2.cvtColor(self.color_image_data, cv2.COLOR_BAYER_BG2RGB)
-        normalized_color_image = cv2.normalize(self.color_image_rgb, None, alpha=0.5, beta=1, norm_type=cv2.NORM_MINMAX,
-                                               dtype=cv2.CV_16U)
-        # plt.imshow(self.color_image_rgb)
-        cv2.imshow('TestImage', self.color_image_rgb)
-        cv2.waitKey(0)
+
+        img = Image.fromarray(self.color_image_rgb, 'RGB')
+        img.show()
 
 
 def main():

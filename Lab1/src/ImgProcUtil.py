@@ -10,11 +10,9 @@ class ImgProcUtil:
     @staticmethod
     def read_fits_color_file(path: str):
         color_image_hdul = fits.open(path)
-        color_image_data = color_image_hdul[100].data
+        color_image_data = color_image_hdul[1].data
         return color_image_data
 
-    @staticmethod
-    def print_hdul(hdul):
-        # Header Data Unit List
-        print(hdul.info())
-        print(hdul[30:40, 10:20])
+    def print_hdul(self):
+        print(self.color_image_hdul.info())
+        print(self.color_image_data[30:40, 10:20])
