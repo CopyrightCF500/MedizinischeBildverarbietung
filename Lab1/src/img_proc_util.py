@@ -35,6 +35,8 @@ class ImgProcUtil:
             for image in color_image_hdul[1:]:
                 img_list.append(image.data)
 
+            color_image_hdul.close()
+
             return img_list
 
         except FileNotFoundError:
