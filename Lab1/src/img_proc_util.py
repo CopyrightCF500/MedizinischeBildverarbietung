@@ -18,26 +18,26 @@ class ImgProcUtil:
         pass
 
     @staticmethod
-    def read_fits_color_file(path: str) -> np.ndarray:
+    def read_fits_file(path: str) -> np.ndarray:
         """
-        This method gets a path of the FITS color images and returns
+        This method gets a path of the FITS images and returns
         all the containing images in a list.
-        :param path: path of fits color image file
+        :param path: path of fits image file
         :type path: str
-        :return: One image of the fits file
+        :return: (list of color images, hdul data)
         :rtype: numpy.ndarray
         """
 
         img_list = []
         try:
-            color_image_hdul = fits.open(path)
+            image_hdul = fits.open(path)
 
-            for image in color_image_hdul[1:]:
+            for image in image_hdul[1:]:
                 img_list.append(image.data)
 
-            color_image_hdul.close()
+            image_hdul.close()
 
-            return img_list
+            return img_list, image_hdul
 
         except FileNotFoundError:
             print("Error while trying to read color image fits file!")
@@ -50,4 +50,4 @@ class ImgProcUtil:
         :type hdul: fits.HDUList
         """
         print(hdul.info())
-        print(hdul[30:40, 10:20])
+        #print(hdul[30:40, 10:20])
