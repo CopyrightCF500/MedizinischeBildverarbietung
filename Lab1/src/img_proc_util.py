@@ -31,10 +31,23 @@ class ImgProcUtil:
         img_list = []
         try:
             image_hdul = fits.open(path)
+            if "fluo" in path:
+                print("READING FLUO IMAGES")
+            else:
+                print("READING COLOR IMAGES")
+
+            print(image_hdul[0].header)
+
+            already_printed_one = False
 
             for image in image_hdul[1:10]:
+                if not already_printed_one:
+                    print("1. numpy element - SHAPE: ", image.data.shape)
+                    print("1. numpy element - ndim: ", image.data.ndim)
+                    already_printed_one = True
                 img_list.append(image.data)
 
+            print("\n")
             image_hdul.close()
 
             #print(image_hdul[0].header)
