@@ -32,12 +32,16 @@ class ImgProcUtil:
         try:
             image_hdul = fits.open(path)
 
-            for image in image_hdul[1:]:
+            for image in image_hdul[1:10]:
                 img_list.append(image.data)
 
             image_hdul.close()
 
-            return img_list, image_hdul
+            #print(image_hdul[0].header)
+            #print(image_hdul[0].header['TRANSC0'])
+
+
+            return img_list
 
         except FileNotFoundError:
             print("Error while trying to read color image fits file!")
