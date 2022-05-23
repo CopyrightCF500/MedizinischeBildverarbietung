@@ -1,70 +1,35 @@
 #!/usr/bin/python3
 
 """
-This module contains the ImgProcUtil Class
+This module contains custom fits functions
 """
 
+from typing import Dict
 import numpy as np
 from astropy.io import fits
 
 
-class ImgProcUtil:
-    """
-    This utility class read the fits files and contains some
-    other usefully methods for image processing.
-    """
+# returns 3x3 transformation matrix
+def trans_parameter(hdu_primary: fits.PrimaryHDU) -> np.ndarray:
+    val0 = hdu_primary.header.cards['TRANSC0'].value
+    val1 = hdu_primary.header.cards['TRANSC1'].value
+    val2 = hdu_primary.header.cards['TRANSC2'].value
+    val3 = hdu_primary.header.cards['TRANSC3'].value
+    val4 = hdu_primary.header.cards['TRANSC4'].value
+    val5 = hdu_primary.header.cards['TRANSC5'].value
+    val6 = hdu_primary.header.cards['TRANSC6'].value
+    val7 = hdu_primary.header.cards['TRANSC7'].value
+    val8 = hdu_primary.header.cards['TRANSC8'].value
 
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def read_fits_file(path: str) -> np.ndarray:
-        """
-        This method gets a path of the FITS images and returns
-        all the containing images in a list.
-        :param path: path of fits image file
-        :type path: str
-        :return: (list of color images, hdul data)
-        :rtype: numpy.ndarray
-        """
-
-        img_list = []
-        try:
-            image_hdul = fits.open(path)
-            if "fluo" in path:
-                print("READING FLUO IMAGES")
-            else:
-                print("READING COLOR IMAGES")
-
-            print(image_hdul[0].header)
-
-            already_printed_one = False
-
-            for image in image_hdul[1:10]:
-                if not already_printed_one:
-                    print("1. numpy element - SHAPE: ", image.data.shape)
-                    print("1. numpy element - ndim: ", image.data.ndim)
-                    already_printed_one = True
-                img_list.append(image.data)
-
-            print("\n")
-            image_hdul.close()
-
-            #print(image_hdul[0].header)
-            #print(image_hdul[0].header['TRANSC0'])
+    return np.array([
+            [val0, val1, val2],
+            [val3, val4, val5],
+            [val6, val7, val8]  ])
 
 
-            return img_list
-
-        except FileNotFoundError:
-            print("Error while trying to read color image fits file!")
-
-    @staticmethod
-    def print_hdul(hdul: fits.HDUList):
-        """
-        This method prints the info and an example of the given HDUList.
-        :param hdul: HDUList to inspect
-        :type hdul: fits.HDUList
-        """
-        print(hdul.info())
-        #print(hdul[30:40, 10:20])
+def image_timestamp_list(hdul: fits.HDUList) -> list[int, np.ndarray]:
+    list = []
+    for i in range(1, len(hdul)):
+        timestamp = int(hdul[i].header.cards["TIMESTMP"].value)
+        list.append([timestamp, hdul[i].data])  
+    return list
