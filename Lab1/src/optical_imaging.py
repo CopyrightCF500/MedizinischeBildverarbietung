@@ -4,6 +4,7 @@
 This module contains the OpticalImaging Class
 """
 
+from typing import overload
 from img_proc_util import *
 
 
@@ -50,7 +51,17 @@ class OpticalImaging:
         self.color_images_time_list = prepare_color_data(self.color_images_time_list)
         self.fluo_images_time_list = prepare_fluo_data(self.fluo_images_time_list, self.fluo_trans_3x3matrix)
     
-        display_images(self.color_images_time_list[0][1], self.fluo_images_time_list[0][1])
+        #display_images(self.color_images_time_list[0][1], self.fluo_images_time_list[0][1])
+
+        #overlapping = cv2.addWeighted(self.color_images_time_list[0][1], 1.0, self.color_images_time_list[0][1], 0.8, 0)
+        #display_image(overlapping)
+        #display_image(self.fluo_images_time_list[0][1])
+
+        overlapped_images = []
+        overlap(self.color_images_time_list, self.fluo_images_time_list)
+        
+        generate_video(overlapped_images)
+        
 
 
 def main():

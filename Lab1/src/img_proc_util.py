@@ -64,6 +64,20 @@ def display_image(image):
     plt.imshow(image)
     plt.show()
 
+def generate_video(overlapped_list):
+    video = cv2.VideoWriter('video.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 60, (1392, 1024))
+    for i in overlapped_list:
+        video.write(i)  
+    video.release()
+
+def overlap(color_list, fluo_list):
+    overlapped = []
+    for i in range(500):
+        mixed_img = cv2.addWeighted(color_list[i][1], 1.0, cv2.cvtColor(fluo_list[i][1], cv2.COLOR_BGR2RGB).astype(np.uint8), 0.3, 0)
+        overlapped.append(mixed_img)
+    return overlapped
+
+
 
 
 
