@@ -43,17 +43,29 @@ def prepare_color_data(image_time_list):
         list.append([image_time_list[i][0], image])
     return list
 
-def prepare_fluo_data(image_time_list):
+def prepare_fluo_data(image_time_list, trans_matrix):
     list = []
     for i in range(len(image_time_list)):
         image = cv2.resize(image_time_list[i][1], (1392, 1024))
+        image = cv2.flip(image, 1) #flips around y-axis
+        image = cv2.warpPerspective(image, trans_matrix, (1392, 1024))
         list.append([image_time_list[i][0], image])
     return list
 
+def display_images(color_image, fluo_image):
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(color_image)
+    ax[0].title.set_text('Color')
+    ax[1].imshow(fluo_image)
+    ax[1].title.set_text('Fluo')
+    plt.show()
+
 def display_image(image):
-    #plt.subplot()
     plt.imshow(image)
     plt.show()
+
+
+
 
 
 

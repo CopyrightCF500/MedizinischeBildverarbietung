@@ -28,8 +28,8 @@ class OpticalImaging:
             self.color_data = fits.open('../res/Mice2_cetu2_131213_210250_color.fits')
             self.fluo_data =  fits.open('../res/Mice2_cetu2_131213_210250_fluo.fits')
 
-            print("READING FLUO FITS FILE")
             print("READING COLOR FITS FILE")
+            print("READING FLUO FITS FILE")
 
         except FileNotFoundError:
             print("Error while trying to read color image fits file!")
@@ -45,23 +45,12 @@ class OpticalImaging:
         self.color_data.close()
         self.fluo_data.close()
 
-        #TODO: find correspondings depending on timestamps
+        #TODO: find corresponding images depending on timestamps
 
         self.color_images_time_list = prepare_color_data(self.color_images_time_list)
-        self.fluo_images_time_list = prepare_fluo_data(self.fluo_images_time_list)
-
-        display_image(self.color_images_time_list[0][1])
-        display_image(self.fluo_images_time_list[0][1])
-
-        #TODO: cv2.warpPerspective with 3x3 matrix
-        # The cameras have different resolution, size and format. Co-Registrate the images!       
-        # self.coregistration_images()
-
-#
-#    def coregistration_images(self):
-#        pass
-#        # print(self.color_images_rgb[0].shape)
-#        # print(self.fluo_images_rgb[0].shape)
+        self.fluo_images_time_list = prepare_fluo_data(self.fluo_images_time_list, self.fluo_trans_3x3matrix)
+    
+        display_images(self.color_images_time_list[0][1], self.fluo_images_time_list[0][1])
 
 
 def main():
