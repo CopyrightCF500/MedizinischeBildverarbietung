@@ -4,6 +4,7 @@
 This module contains custom fits functions
 """
 
+from turtle import color
 import numpy as np
 import cv2
 from astropy.io import fits
@@ -31,10 +32,29 @@ def trans_parameter(hdu_primary: fits.PrimaryHDU) -> np.ndarray:
 def image_timestamp_list(hdul: fits.HDUList):
     list = []
     for i in range(1, len(hdul)):
+    #for i in range(1, 60):
         timestamp = int(hdul[i].header.cards["TIMESTMP"].value)
         list.append([timestamp, hdul[i].data])  
     return list
 
+def corresponding(color_time_list, fluo_time_list):
+    color_times, fluo_times, all_times = [], [], []
+    for i in range(len(color_time_list)):
+        color_times.append(color_time_list[i][0])
+    for i in range(len(fluo_time_list)):
+        fluo_times.append(fluo_time_list[i][0])
+    all_times.extend(color_times)
+    all_times.extend(fluo_times)
+    latest_color = min(color_times)
+    latest_fluo = min(fluo_times)
+    colors = sorted(color_times)
+    fluos = sorted(fluo_times)
+    corresponding_images = {}
+    for t in all_times:
+        latest_color = t if t in color_times else latest_color
+        latest_fluo = t if t in fluo_times else latest_fluo
+        corresponding_images[t] = [latest_color, latest_fluo]
+    return all_times, corresponding_images
 
 def prepare_color_data(image_time_list):
     list = []
@@ -49,6 +69,12 @@ def prepare_fluo_data(image_time_list, trans_matrix):
         image = cv2.resize(image_time_list[i][1], (1392, 1024))
         image = cv2.flip(image, 1) #flips around y-axis
         image = cv2.warpPerspective(image, trans_matrix, (1392, 1024))
+        #image = cv2.convertScaleAbs(image, alpha=(255.0/65535.0)) # -> converts to uint8
+        #image = cv2.threshold(image, 10, 25, cv2.THRESH_BINARY)[1]
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #image = cv2.bitwise_not(image+255)
+        image= cv2.threshold(image, 2000, 2500, cv2.THRESH_BINARY)[1]
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.uint8)
         list.append([image_time_list[i][0], image])
     return list
 
@@ -65,7 +91,8 @@ def display_image(image):
     plt.show()
 
 def generate_video(overlapped_list):
-    video = cv2.VideoWriter('video.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 60, (1392, 1024))
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    video = cv2.VideoWriter('video.mp4',fourcc, 20, (1392,1024))
     for i in overlapped_list:
         video.write(i)  
     video.release()
@@ -73,7 +100,7 @@ def generate_video(overlapped_list):
 def overlap(color_list, fluo_list):
     overlapped = []
     for i in range(500):
-        mixed_img = cv2.addWeighted(color_list[i][1], 1.0, cv2.cvtColor(fluo_list[i][1], cv2.COLOR_BGR2RGB).astype(np.uint8), 0.3, 0)
+        mixed_img = cv2.addWeighted(color_list[i][1], 1.0, fluo_list[i][1], 0.3, 0)
         overlapped.append(mixed_img)
     return overlapped
 
