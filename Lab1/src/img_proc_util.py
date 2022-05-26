@@ -32,34 +32,37 @@ def trans_parameter(hdu_primary: fits.PrimaryHDU) -> np.ndarray:
 def image_timestamp_list(hdul: fits.HDUList):
     list = []
     for i in range(1, len(hdul)):
-    #for i in range(1, 60):
+    #for i in range(1, 600):
         timestamp = int(hdul[i].header.cards["TIMESTMP"].value)
         list.append([timestamp, hdul[i].data])  
     return list
 
-def corresponding(color_time_list, fluo_time_list):
-    color_times, fluo_times, all_times = [], [], []
+def find_matching(color_time_list, fluo_time_list):
+    color_times, fluo_times = [], []
     for i in range(len(color_time_list)):
         color_times.append(color_time_list[i][0])
     for i in range(len(fluo_time_list)):
         fluo_times.append(fluo_time_list[i][0])
-    all_times.extend(color_times)
-    all_times.extend(fluo_times)
-    latest_color = min(color_times)
-    latest_fluo = min(fluo_times)
-    colors = sorted(color_times)
-    fluos = sorted(fluo_times)
-    corresponding_images = {}
-    for t in all_times:
-        latest_color = t if t in color_times else latest_color
-        latest_fluo = t if t in fluo_times else latest_fluo
-        corresponding_images[t] = [latest_color, latest_fluo]
-    return all_times, corresponding_images
+    
+    N_iterations = min(len(color_times), len(fluo_times))
+
+    matching_timestamps = []
+
+    for i in range(N_iterations):
+        matching_timestamps.append([i, 0])
+        timestamp_color = color_times[i]
+        min_diff = timestamp_color
+        for j in range(N_iterations):
+            if abs(timestamp_color - fluo_times[j]) < min_diff:
+                min_diff = abs(timestamp_color - fluo_times[j])
+                matching_timestamps[i][1] = j
+    return matching_timestamps
 
 def prepare_color_data(image_time_list):
     list = []
     for i in range(len(image_time_list)):
         image = cv2.cvtColor(image_time_list[i][1].astype(np.uint8), cv2.COLOR_BAYER_BG2RGB)
+        image = cv2.flip(image, 1) #flips around y-axis
         list.append([image_time_list[i][0], image])
     return list
 
@@ -67,14 +70,12 @@ def prepare_fluo_data(image_time_list, trans_matrix):
     list = []
     for i in range(len(image_time_list)):
         image = cv2.resize(image_time_list[i][1], (1392, 1024))
-        image = cv2.flip(image, 1) #flips around y-axis
         image = cv2.warpPerspective(image, trans_matrix, (1392, 1024))
-        #image = cv2.convertScaleAbs(image, alpha=(255.0/65535.0)) # -> converts to uint8
-        #image = cv2.threshold(image, 10, 25, cv2.THRESH_BINARY)[1]
-        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #image = cv2.bitwise_not(image+255)
-        image= cv2.threshold(image, 2000, 2500, cv2.THRESH_BINARY)[1]
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.uint8)
+        image = cv2.convertScaleAbs(image, alpha=(255.0/65535.0)) # -> converts to uint8
+        image = cv2.threshold(image, 11, 15, cv2.THRESH_BINARY)[1]
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        image = cv2.bitwise_not(image+255)
+        image = cv2.erode(image, kernel = np.ones((5, 5), np.uint8))
         list.append([image_time_list[i][0], image])
     return list
 
@@ -97,11 +98,12 @@ def generate_video(overlapped_list):
         video.write(i)  
     video.release()
 
-def overlap(color_list, fluo_list):
+def overlap(color_list, fluo_list, all_times):
+    #N_iterations = len(all_times)
     overlapped = []
-    for i in range(500):
-        mixed_img = cv2.addWeighted(color_list[i][1], 1.0, fluo_list[i][1], 0.3, 0)
-        overlapped.append(mixed_img)
+    for i in range(380, 700):
+        image = cv2.addWeighted(color_list[all_times[i][0]][1], 1.0, fluo_list[all_times[i][1]][1], 0.3, 0)
+        overlapped.append(image)
     return overlapped
 
 
