@@ -29,7 +29,7 @@ def trans_parameter(hdu_primary: fits.PrimaryHDU) -> np.ndarray:
             [val6, val7, val8]  ])
 
 
-def image_timestamp_list(hdul: fits.HDUList):
+def image_timestamp_list(hdul):
     list = []
     for i in range(1, len(hdul)):
     #for i in range(1, 600):
@@ -71,11 +71,16 @@ def prepare_fluo_data(image_time_list, trans_matrix):
     for i in range(len(image_time_list)):
         image = cv2.resize(image_time_list[i][1], (1392, 1024))
         image = cv2.warpPerspective(image, trans_matrix, (1392, 1024))
-        image = cv2.convertScaleAbs(image, alpha=(255.0/65535.0)) # -> converts to uint8
-        image = cv2.threshold(image, 11, 15, cv2.THRESH_BINARY)[1]
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        image = cv2.bitwise_not(image+255)
-        image = cv2.erode(image, kernel = np.ones((5, 5), np.uint8))
+        image = cv2.threshold(image, 2200, 2500, cv2.THRESH_BINARY)[1]
+        image = cv2.erode(image, kernel = np.ones((5, 5), np.uint8), iterations=4)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.uint8)
+        #image = cv2.convertScaleAbs(image, alpha=(255.0/65535.0)) # -> converts to uint8
+        #image = cv2.threshold(image, 11, 15, cv2.THRESH_BINARY)[1]
+        #image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        #image = cv2.bitwise_not(image+255)
+        #image = cv2.erode(image, kernel = np.ones((5, 5), np.uint8), iterations=2)
+        #image = cv2.dilate(image, kernel = np.ones((5, 5), np.uint8), iterations=2)
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         list.append([image_time_list[i][0], image])
     return list
 
@@ -99,10 +104,11 @@ def generate_video(overlapped_list):
     video.release()
 
 def overlap(color_list, fluo_list, all_times):
-    #N_iterations = len(all_times)
+    N_iterations = len(all_times)
     overlapped = []
-    for i in range(380, 700):
-        image = cv2.addWeighted(color_list[all_times[i][0]][1], 1.0, fluo_list[all_times[i][1]][1], 0.3, 0)
+    for i in range(800):
+    #for i in range(N_iterations):
+        image = cv2.addWeighted(cv2.cvtColor(color_list[all_times[i][0]][1], cv2.COLOR_BGR2RGB), 1.0, fluo_list[all_times[i][1]][1], 0.3, 0)
         overlapped.append(image)
     return overlapped
 

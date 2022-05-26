@@ -52,10 +52,7 @@ class OpticalImaging:
         self.color_images_time_list = prepare_color_data(self.color_images_time_list)
         self.fluo_images_time_list = prepare_fluo_data(self.fluo_images_time_list, self.fluo_trans_3x3matrix)
 
-        #display_images(self.color_images_time_list[self.all_times[0][0]][1], self.fluo_images_time_list[self.all_times[0][1]][1])
-
-        #overlapping = cv2.addWeighted(self.color_images_time_list[0][1], 1.0, self.fluo_images_time_list[6][1], 0.3, 0)
-        #display_image(overlapping)
+        #display_images(self.color_images_time_list[self.all_times[400][0]][1], self.fluo_images_time_list[self.all_times[400][1]][1])
 
         overlapped_images = []
         overlapped_images = overlap(self.color_images_time_list, self.fluo_images_time_list, self.all_times)
