@@ -29,15 +29,15 @@ def trans_parameter(hdu_primary: fits.PrimaryHDU) -> np.ndarray:
             [val6, val7, val8]  ])
 
 
-def image_timestamp_list(hdul):
+def image_timestamp_list(hdul: fits.HDUList):
     list = []
     for i in range(1, len(hdul)):
     #for i in range(1, 600):
         timestamp = int(hdul[i].header.cards["TIMESTMP"].value)
-        list.append([timestamp, hdul[i].data])  
+        list.append([timestamp, hdul[i].data])
     return list
 
-def find_matching(color_time_list, fluo_time_list):
+def find_matching(color_time_list: 'list[list[int]]', fluo_time_list: 'list[list[int]]'):
     color_times, fluo_times = [], []
     for i in range(len(color_time_list)):
         color_times.append(color_time_list[i][0])
@@ -58,7 +58,7 @@ def find_matching(color_time_list, fluo_time_list):
                 matching_timestamps[i][1] = j
     return matching_timestamps
 
-def prepare_color_data(image_time_list):
+def prepare_color_data(image_time_list: 'list[list[int]]'):
     list = []
     for i in range(len(image_time_list)):
         image = cv2.cvtColor(image_time_list[i][1].astype(np.uint8), cv2.COLOR_BAYER_BG2RGB)
@@ -66,7 +66,7 @@ def prepare_color_data(image_time_list):
         list.append([image_time_list[i][0], image])
     return list
 
-def prepare_fluo_data(image_time_list, trans_matrix):
+def prepare_fluo_data(image_time_list: 'list[list[int]]', trans_matrix: np.ndarray):
     list = []
     for i in range(len(image_time_list)):
         image = cv2.resize(image_time_list[i][1], (1392, 1024))
@@ -84,7 +84,7 @@ def prepare_fluo_data(image_time_list, trans_matrix):
         list.append([image_time_list[i][0], image])
     return list
 
-def display_images(color_image, fluo_image):
+def display_images(color_image: np.ndarray, fluo_image: np.ndarray):
     fig, ax = plt.subplots(1, 2)
     ax[0].imshow(color_image)
     ax[0].title.set_text('Color')
@@ -92,18 +92,14 @@ def display_images(color_image, fluo_image):
     ax[1].title.set_text('Fluo')
     plt.show()
 
-def display_image(image):
-    plt.imshow(image)
-    plt.show()
-
-def generate_video(overlapped_list):
+def generate_video(overlapped_list: 'list[np.ndarray]'):
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     video = cv2.VideoWriter('video.mp4',fourcc, 20, (1392,1024))
     for i in overlapped_list:
         video.write(i)  
     video.release()
 
-def overlap(color_list, fluo_list, all_times):
+def overlap(color_list: 'list[list[int]]', fluo_list: 'list[list[int]]', all_times: 'list[list[int]]'):
     N_iterations = len(all_times)
     overlapped = []
     for i in range(800):
