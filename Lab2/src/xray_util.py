@@ -9,33 +9,47 @@ import cv2
 import sys
 import glob
 import numpy as np
+import typing
 
 
-def GetDicomImagesList(pathOfFolder: str):
+def get_dicom_list(path_of_folder: str) -> typing.List[typing.List[typing.Dict[dicom.FileDataset, typing.Any]]]:
 
     try:
         print("Getting all DICOM file paths...")
-        list_of_files: list[str] = glob.glob(pathOfFolder +'/*.dcm')
-        return readAndSafeListOfDicomPaths(list_of_files)
+        list_of_files: typing.List[str] = glob.glob(path_of_folder + '/*.dcm')
+        return read_and_safe_list_of_dicom_paths(list_of_files)
     except FileNotFoundError:
         sys.exit('Error while trying to read dicom file!')
 
-def readAndSafeListOfDicomPaths(list_of_paths):
-    dict = {}  # dict[any, list[Union[None, fileDataset, DicomDir]]]
-    for file_name in list_of_paths:
+
+def read_and_safe_list_of_dicom_paths(list_of_file_paths: typing.List[str]) -> typing.List[typing.List[typing.Dict[dicom.FileDataset, typing.Any]]]:
+    dict_of_images = {}  # dict[any, list[Union[None, fileDataset, DicomDir]]]
+    for file in list_of_file_paths:
         try:
-            ds = dicom.dcmread(str(file_name))
+            ds: dicom.FileDataset = dicom.dcmread(str(file))
         except:
             sys.exit('Error while trying to read a DICOM image!')
 
-        dict[ds.AcquisitionNumber] = ([cv2.rotate(ds.pixel_array, cv2.ROTATE_180), ds.PixelSpacing, ds])
+        dict_of_images[ds.AcquisitionNumber] = ([cv2.rotate(ds.pixel_array, cv2.ROTATE_180), ds.PixelSpacing, ds])
     ret = []
-    for i in range(len(dict)):
-        ret.append(dict[i])
+
+    for i in range(len(dict_of_images)):
+        ret.append(dict_of_images[i])
     return ret
 
 
-def display_slice(image):
+def get_images(dicom_list: typing.List[typing.List[typing.Dict[dicom.FileDataset, typing.Any]]]) -> typing.List[np.ndarray]:
+    ret = []
+    for dicom in dicom_list:
+        ret.append(dicom[0])
+    return ret
+
+
+def print_header(image: dicom.FileDataset):
+    print(image)
+
+
+def display_slice(image: np.ndarray):
     plt.imshow(image, cmap='gray')
     plt.show()
 
