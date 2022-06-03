@@ -92,6 +92,10 @@ def display_images(color_image: np.ndarray, fluo_image: np.ndarray):
     ax[1].title.set_text('Fluo')
     plt.show()
 
+def display_image(color_image: np.ndarray):
+    plt.imshow(color_image)
+    plt.show()
+
 def generate_video(overlapped_list: 'list[np.ndarray]'):
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     video = cv2.VideoWriter('video.mp4',fourcc, 20, (1392,1024))
@@ -107,10 +111,3 @@ def overlap(color_list: 'list[list[int]]', fluo_list: 'list[list[int]]', all_tim
         image = cv2.addWeighted(cv2.cvtColor(color_list[all_times[i][0]][1], cv2.COLOR_BGR2RGB), 1.0, fluo_list[all_times[i][1]][1], 0.3, 0)
         overlapped.append(image)
     return overlapped
-
-
-
-
-
-
-
