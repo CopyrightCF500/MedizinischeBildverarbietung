@@ -62,7 +62,6 @@ class OpticalImaging:
         generate_video(overlapped_images)
         
 
-
 def main():
     """
     Main function of the application.
