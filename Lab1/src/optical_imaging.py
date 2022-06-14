@@ -18,10 +18,11 @@ class OpticalImaging:
     """
 
     def __init__(self):
-        self.color_data, self.fluo_data = [], []
-        self.color_images_time_list, self.fluo_images_time_list = [], []
+        self.color_data, self.fluo_data  = [], []
+        self.color_images_time_list, self.fluo_images_time_list , self.fluo_only_images = [], [], []
         self.fluo_trans_3x3matrix = []
         self.all_times = []
+        self.video_data = []
 
     def run(self):
         """
@@ -40,27 +41,54 @@ class OpticalImaging:
         # contains list: [[timestamp1, image_data1], [timestamp2, image_data2], ... ]
         self.color_images_time_list: list[list[int]] = image_timestamp_list(self.color_data)
         self.fluo_images_time_list: list[list[int]] = image_timestamp_list(self.fluo_data)
+        for time, image in self.fluo_images_time_list:
+            self.fluo_only_images.append((image))
 
-        # contains 3x3 transformations matrix
+        # contains 3x3 transformation matrix
         self.fluo_trans_3x3matrix: np.ndarray = trans_parameter(self.fluo_data[0])
-        #print(self.fluo_trans_3x3matrix)
 
         self.color_data.close()
         self.fluo_data.close()
 
-        #find corresponding images depending on timestamps
+        # find corresponding images depending on timestamps
         self.all_times: list[list[int]] = find_matching(self.color_images_time_list, self.fluo_images_time_list)
 
         self.color_images_time_list = prepare_color_data(self.color_images_time_list)
         self.fluo_images_time_list = prepare_fluo_data(self.fluo_images_time_list, self.fluo_trans_3x3matrix)
 
-        #display_images(self.color_images_time_list[self.all_times[400][0]][1], self.fluo_images_time_list[self.all_times[400][1]][1])
+        # Aufgabe 2: display corresponding images
+        '''
+        display_images(self.color_images_time_list[self.all_times[400][0]][1], self.fluo_images_time_list[self.all_times[400][1]][1])
+        '''
 
+        # Aufgabe 3: generate video
+        '''
         overlapped_images: list[np.ndarray] = []
         overlapped_images = overlap(self.color_images_time_list, self.fluo_images_time_list, self.all_times)
+        generate_video(overlapped_images, 'video.mp4', (1392,1024))
+        '''
 
-        generate_video(overlapped_images)
-        
+        # Aufgabe 4: hochaufgeloestes Video
+        #'''
+        video_path = '../res/Movie human colon xenograft 1.mp4'
+        print("READING VIDEO FILE...")
+        self.video_data = capture_video(video_path)
+
+        self.fluo_only_images = prepare_fluo_data_2(self.fluo_only_images)
+
+        # compare fluo size with video_data size
+        self.fluo_only_images = compare_sizes(len(self.video_data), len(self.fluo_only_images), self.fluo_only_images)
+
+        for i in range(len(self.fluo_only_images)):
+            M = calculate_transform_matrix(self.fluo_only_images[i], self.video_data[i])
+            self.fluo_only_images[i] = cv2.warpAffine(self.fluo_only_images[i], M, (768,576))
+
+        overlapped_images = []
+        overlapped_images = overlap_2(self.video_data, self.fluo_only_images)
+
+        generate_video(overlapped_images, 'video2.mp4', (768,576))
+        #'''
+
 
 def main():
     """
