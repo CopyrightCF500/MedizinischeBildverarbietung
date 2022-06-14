@@ -2,14 +2,17 @@
 
 import pydicom as dicom
 import matplotlib.pylab as plt
-
 from mpl_toolkits.mplot3d import axes3d
-
+from vedo import *
 import cv2
 import sys
 import glob
 import numpy as np
 import typing
+
+from skimage import morphology
+from skimage import measure
+from skimage.transform import resize
 
 
 def get_dicom_list(path_of_folder: str) -> typing.List[dicom.FileDataset]:
@@ -55,6 +58,15 @@ def display_slice(image: np.ndarray):
     plt.imshow(image, cmap='gray')
     plt.show()
 
+def display_slices(stack, rows=5, cols=5, start_with=10, show_every=3):
+    fig, ax = plt.subplots(rows, cols, figsize=[12, 8])
+    for i in range(rows * cols):
+        ind = start_with + i * show_every
+        ax[int(i / rows), int(i % rows)].set_title('slice %d' % ind)
+        ax[int(i / rows), int(i % rows)].imshow(stack[ind][0], cmap='gray')
+        ax[int(i / rows), int(i % rows)].axis('off')
+    plt.show()
+
 
 def display_wireframe(dataset: typing.List[dicom.FileDataset]):
     fig = plt.figure()
@@ -76,3 +88,43 @@ def display_wireframe(dataset: typing.List[dicom.FileDataset]):
     #X, Y, Z = np.meshgrid(X, Y, Z)
     ax.plot_wireframe(x_pos, y_pos, z_pos)
     plt.show()
+
+
+def display_wireframe2(slices):
+    # pixel aspects, assuming all slices are the same
+    ps = slices[0][2].PixelSpacing
+    ss = slices[0][2].SliceThickness
+    ax_aspect = ps[1] / ps[0]
+    sag_aspect = ps[1] / ss
+    cor_aspect = ss / ps[0]
+
+    # create 3D array
+    img_shape = list(slices[0][2].pixel_array.shape)
+    img_shape.append(len(slices))
+    img3d = np.zeros(img_shape)
+
+    # fill 3D array with the images from the files
+    for i, s in enumerate(slices):
+        img2d = s[2].pixel_array
+        img3d[:, :, i] = img2d
+
+    # plot 3 orthogonal slices
+    a1 = plt.subplot(2, 2, 1)
+    plt.imshow(img3d[:, :, img_shape[2] // 2])
+    a1.set_aspect(ax_aspect)
+
+    a2 = plt.subplot(2, 2, 2)
+    plt.imshow(img3d[:, img_shape[1] // 2, :])
+    a2.set_aspect(sag_aspect)
+
+    a3 = plt.subplot(2, 2, 3)
+    plt.imshow(img3d[img_shape[0] // 2, :, :].T)
+    a3.set_aspect(cor_aspect)
+
+    plt.show()
+
+
+def plot_3d():
+    volume = load('../data')  # returns a vedo-Volume object
+    show(volume, bg='white', mode=10)
+

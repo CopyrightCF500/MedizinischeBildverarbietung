@@ -10,22 +10,30 @@ class XRayViewer:
     def __init__(self, folder_path: str):
         self.dicom_files_folder_path = folder_path
         # List of all DICOM images
-<<<<<<< HEAD
         self.dicom_files_list: typing.List[dicom.FileDataset] = []
-=======
-        self.dicom_files_list: typing.List[typing.List[typing.Dict[dicom.FileDataset, typing.Any]]] = []
->>>>>>> merge main
         self.dicom_files_list = xray_util.get_dicom_list(folder_path)
         self.dicom_images = xray_util.get_images(self.dicom_files_list)
 
     def run(self):
+
         #print(type(self.dicom_files_list[0]))
-<<<<<<< HEAD
         print(xray_util.display_slice(self.dicom_images[150]))
         #xray_util.display_wireframe(self.dicom_files_list)
         #print(xray_util.print_header(self.dicom_files_list[150].)))
-=======
-        print(xray_util.display_slice(self.dicom_images[0]))
+        # show one slice
+        #xray_util.display_slice(self.dicom_images[150])
+
+        # show multiple slices
+        xray_util.display_slices(self.dicom_files_list)
+
+        # display wireframe
         #xray_util.display_wireframe(self.dicom_files_list)
+
+        # Oberfläche? (aufgabe 4)
+        #xray_util.display_wireframe2(self.dicom_files_list)
+
+        # print header
         #print(xray_util.print_header(self.dicom_files_list[150][2]))
->>>>>>> merge main
+
+        # coole 3D Darstellung
+        xray_util.plot_3d()
