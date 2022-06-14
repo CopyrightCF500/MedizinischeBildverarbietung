@@ -77,16 +77,16 @@ class OpticalImaging:
         self.fluo_only_images = prepare_fluo_data_2(self.fluo_only_images)
 
         # compare fluo size with video_data size
-        self.fluo_only_images = compare_sizes(len(self.video_data), len(self.fluo_only_images), self.fluo_only_images)
+        self.fluo_only_images = update_size(len(self.video_data), len(self.fluo_only_images), self.fluo_only_images)
 
         for i in range(len(self.fluo_only_images)):
             M = calculate_transform_matrix(self.fluo_only_images[i], self.video_data[i])
             self.fluo_only_images[i] = cv2.warpAffine(self.fluo_only_images[i], M, (768,576))
 
-        overlapped_images = []
-        overlapped_images = overlap_2(self.video_data, self.fluo_only_images)
+        #overlapped_images = []
+        #overlapped_images = overlap_2(self.video_data, self.fluo_only_images)
 
-        generate_video(overlapped_images, 'video2.mp4', (768,576))
+        #generate_video(overlapped_images, 'video2.mp4', (768,576))
         #'''
 
 

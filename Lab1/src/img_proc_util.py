@@ -147,7 +147,7 @@ def prepare_fluo_data_2(image_list):
         list.append(image)
     return list
 
-def compare_sizes(size_video, size_fluo, fluo_list):
+def update_size(size_video, size_fluo, fluo_list):
     ret = []
     for i in range(size_video):
         n = int(i / (size_video/size_fluo))
