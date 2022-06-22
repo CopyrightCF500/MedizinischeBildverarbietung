@@ -69,25 +69,33 @@ class OpticalImaging:
         '''
 
         # Aufgabe 4: hochaufgeloestes Video
+
         #'''
         video_path = '../res/Movie human colon xenograft 1.mp4'
         print("READING VIDEO FILE...")
         self.video_data = capture_video(video_path)
-
-        self.fluo_only_images = prepare_fluo_data_2(self.fluo_only_images)
+        #display_image(self.video_data[0][0])
 
         # compare fluo size with video_data size
         self.fluo_only_images = update_size(len(self.video_data), len(self.fluo_only_images), self.fluo_only_images)
 
-        for i in range(len(self.fluo_only_images)):
-            M = calculate_transform_matrix(self.fluo_only_images[i], self.video_data[i])
-            self.fluo_only_images[i] = cv2.warpAffine(self.fluo_only_images[i], M, (768,576))
+        self.fluo_only_images = prepare_fluo_data_2(self.fluo_only_images)
+        #display_image(self.fluo_only_images[0][0])
 
-        #overlapped_images = []
-        #overlapped_images = overlap_2(self.video_data, self.fluo_only_images)
+        self.fluo_only_images = apply_matrix(self.video_data, self.fluo_only_images)
 
-        #generate_video(overlapped_images, 'video2.mp4', (768,576))
+        #for i in range(len(self.fluo_only_images)):
+            #M = calculate_transform_matrix(self.fluo_only_images[i], self.video_data[i])
+            #self.fluo_only_images[i] = cv2.warpAffine(self.fluo_only_images[i], M, (768,576))
+
+        overlapped_images = []
+        overlapped_images = overlap_2(self.video_data, self.fluo_only_images)
+
+        generate_video(overlapped_images, 'video2.mp4', (480, 480))
+        #generate_video(self.fluo_only_images, 'video3.mp4', (480, 480))
+
         #'''
+
 
 
 def main():
