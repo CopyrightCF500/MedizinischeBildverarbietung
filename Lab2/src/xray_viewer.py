@@ -6,40 +6,70 @@ import xray_util
 import typing
 import pydicom
 import numpy as np
-import matplotlib
-import scipy
-import plotly
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+
 
 class XRayViewer:
 
     def __init__(self, folder_path: str):
-        self.dicom_files_folder_path = folder_path
-        # List of all DICOM images
-        self.dicom_files_list: typing.List[pydicom.FileDataset] = []
-        self.dicom_files_list = xray_util.get_dicom_list(folder_path)
-        self.dicom_images: typing.List[np.ndarray] = xray_util.get_images(self.dicom_files_list)
+        self.slices: typing.List[pydicom.FileDataset] = []
+        self.images: typing.List[np.ndarray] = []
+
+        self.read_dicom_data(folder_path)
+
+    def read_dicom_data(self, folder_path: str):
+        self.slices = xray_util.get_dicom_list(folder_path)
+        self.images = xray_util.get_images(self.slices)
 
     def run(self):
+        xray_util.print_header(self.slices[0])
+        print(self.images[0])
+        self.display_slice(0)
+        self.display_slice(150)
+        # self.display_wireframe()
 
-        #print(type(self.dicom_files_list[0]))
-        #print(xray_util.display_slice(self.dicom_images[83]))
-        self.display_slice()
-        #xray_util.display_wireframe(self.dicom_files_list)
-        #print(xray_util.print_header(self.dicom_files_list[150].)))
-        # show one slice
-        #xray_util.display_slice(self.dicom_images[150])
+    def display_slice(self, img_idx: int):
+        plt.imshow(self.slices[img_idx].pixel_array, cmap=plt.cm.bone)
+        plt.show()
+        pass
 
-        # show multiple slices
-        xray_util.display_slices(self.dicom_files_list)
+    def display_multiple_slices(self):
+        masked_lung = []
 
-        # display wireframe
-        #xray_util.display_wireframe(self.dicom_files_list)
+        for img in imgs_after_resamp:
+            masked_lung.append(make_lungmask(img))
 
-        # Oberfläche? (aufgabe 4)
-        #xray_util.display_wireframe2(self.dicom_files_list)
+        self.sample_stack(masked_lung, show_every=10)
 
-        # print header
-        #print(xray_util.print_header(self.dicom_files_list[150][2]))
+    def sample_stack(self, stack, rows=6, cols=6, start_with=0, show_every=10):
+        fig, ax = plt.subplots(rows, cols, figsize=[12, 12])
+        for i in range(rows * cols):
+            ind = start_with + i * show_every
+            ax[int(i / rows), int(i % rows)].set_title('slice %d' % ind)
+            ax[int(i / rows), int(i % rows)].imshow(stack[ind], cmap='gray')
+            ax[int(i / rows), int(i % rows)].axis('off')
+        plt.show()
 
-        # coole 3D Darstellung
-        xray_util.plot_3d()
+    def display_wireframe(self):
+        names = sitk.ImageSeriesReader.GetGDCMSeriesFileNames('../data/')
+        reader = sitk.ImageSeriesReader()
+        reader.SetFileNames(names)
+        img = reader.Execute()
+
+        itkwidgets.view(img)
+
+    def display_interactive_wireframe(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+
+        ax.scatter(1, 1, 1, marker="o", c="red", s=50)
+
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+
+        plt.show()
+
+    def remove_cage(self):
+        pass
