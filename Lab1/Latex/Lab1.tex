@@ -89,6 +89,7 @@ Ein Beispiel für ein korrespondierendes Bildpaar:
 
 \begin{figure}[h]
 \includegraphics[width=8cm]{Fig1}
+\caption{links: Farbbild; rechts: Fluoreszenzbild}
 \end{figure}
 
 
@@ -97,7 +98,8 @@ Ein Beispiel für ein korrespondierendes Bildpaar:
 Ein Beispiel für eine Überlagerung eines korrespondierenden Bildpaares:
 
 \begin{figure}[h]
-\includegraphics[width=8cm]{Fig2}
+\includegraphics[scale=0.22]{Fig2}
+\caption{Überlagertes Bild}
 \end{figure}
 
 \section{Erstellen eines hochaufgelösten überlagerten Falschfarbenvideos} 
@@ -110,9 +112,9 @@ Hierbei sollen die Reflektionsdaten aus einer Videodatei (.mp4) eingelesen und m
 
 Da der Bilddatensatz der Reflektionsdaten deutlich größer ist als der der Fluoreszenzbildern, muss dieser zunächst angepasst werden. Dabei werden einzelne Fluoreszenzbilder mehrfach dem Bilddatensatz beigefügt, sodass die Größen der Bilddatensätze übereinstimmen. \\
 
-Bevor die Konturen berechnet werden, werden die Reflektionsdaten als auch die Fluoreszenzbildern vorverarbeitet. Zur Reduzierung des Berechnungsaufwandes wird die Auflösung beider Bilddatensätze auf 480x480 Pixel reduziert. Zudem werden die Reflektionsbilder ebenso binarisiert, um die Anzahl der Konturen zu reduzieren. 
+Bevor die Konturen berechnet werden, wird die Auflösung beider Bilddatensätze zur Reduzierung des Berechnungsaufwandes auf 480x480 Pixel reduziert. Zudem werden auch die Reflektionsbilder binarisiert, um die Anzahl der falschen Konturen zu reduzieren. 
 
-\subsection{Durchführung}
+\subsection{Ansatz}
 
 Das Ziel ist, die passende Kontur in beiden korrespondierenden Bildern zu bestimmen und den Kontur-Mittelpunkt zu berechnen. Denn mithilfe der Mittelpunktskoordinaten kann die jeweilige Transformationsmatrix bestimmt werden. In diesem Fall wird eine Affine-Transformation durchgeführt. Da die Größen der Konturen ungefähr übereinstimmen, wird mit der Transformation lediglich die Kontur anhand des Zentrums in Richtung der x- und y-Achse verschoben. Die Verschiebungen werden wie folgt berechnet: \\
 
@@ -122,12 +124,16 @@ $(x_2/y_2)$: Mittelpunkt (Fluoreszenzbilder) \\
 $x_s = x_1 - x_2$ \\
 $y_s = y_1 - y_2$ \\
 
-- Trasnfo
-- Helligkeit erhöhen bis Kontur gefunden
-- Bereich eingegrenzt
+\subsection{Weitere Maßnahmen}
+
+Des Weiteren werden folgende Maßnahmen zur Detektion der korrekten Kontur innerhalb der Reflektionsbilder getroffen: \\
+
+\textbf{- Bereichseingrenzung:} Im gesamten Bilddatensatz lässt sich das Bild auf die linke-obere Bildhälfte reduzieren, da die korrekte Kontur nur innerhalb dieser sich befindet. \\
+
+\textbf{- Iterative Helligkeitserhöhung:} In einigen Fällen werden alle Konturen heraus-binarisiert. Dies kommt vor, wenn das Bild vergleichsweise dunkel ist und die Binarisierung in der Vorverarbeitung nicht optimal gewählt ist. Diesem wird entgegengesteuert, indem die Helligkeit iterativ erhöht wird, bis eine Kontur ermittelt werden kann.  \\
 
 \subsection{Ergebnis}
 
-
+In den meisten Fällen werden die Bilder korrekt überlagert. Nichtsdestotrotz kommt es an manchen Stellen vor, dass die falsche Kontur als 'einzige' Kontur bestimmt wird und somit die Transformation nicht korrekt durchgeführt wird. Außerdem hat sich Bereichseingrenzung als positiv erwiesen, da dabei immer die korrekte Kontur zur Bestimmung der Transformationsmatrix gewählt wurde.
 
 \end{document}
