@@ -110,6 +110,8 @@ Hierbei sollen die Reflektionsdaten aus einer Videodatei (.mp4) eingelesen und m
 
 \subsection{Vorverarbeitung}
 
+Für diesen Aufgabenteil werden die vorverarbeiteten Fluoreszenzbilder aus der vorherigen Aufgabe übernommen. \\
+
 Da der Bilddatensatz der Reflektionsdaten deutlich größer ist als der der Fluoreszenzbildern, muss dieser zunächst angepasst werden. Dabei werden einzelne Fluoreszenzbilder mehrfach dem Bilddatensatz beigefügt, sodass die Größen der Bilddatensätze übereinstimmen. \\
 
 Bevor die Konturen berechnet werden, wird die Auflösung beider Bilddatensätze zur Reduzierung des Berechnungsaufwandes auf 480x480 Pixel reduziert. Zudem werden auch die Reflektionsbilder binarisiert, um die Anzahl der falschen Konturen zu reduzieren. 
@@ -121,8 +123,29 @@ Das Ziel ist, die passende Kontur in beiden korrespondierenden Bildern zu bestim
 $(x_s/y_s)$: Verschiebung \\
 $(x_1/y_1)$: Mittelpunkt (Reflexionsdaten) \\
 $(x_2/y_2)$: Mittelpunkt (Fluoreszenzbilder) \\
-$x_s = x_1 - x_2$ \\
-$y_s = y_1 - y_2$ \\
+
+\begin{equation}
+  \begin{aligned}
+    x_s = x_1 - x_2\\
+      y_s = y_1 - y_2\\ \\
+  \end{aligned}
+\end{equation}
+
+
+Da es sich hierbei nur um eine Verschiebung auf der x- und y-Achse handelt, kann man die Matrix bzw. die neuen Pixel-Koordinaten wie folgt berechnen: \\ \\ \\
+
+Affine Transformation: 
+
+\begin{equation}
+  \begin{aligned}
+\begin{pmatrix} x' \\ y' \end{pmatrix} = 
+\left(\begin{array}{ccc} 1 & 0 & x_s \\ 0 & 1 & y_s \end{array}\right)
+\left(\begin{array}{r} x_1 \\ y_1 \\ 1 \end{array}\right) 
+  \end{aligned}
+\end{equation}
+
+$(x'/y')$ stellt dabei die transformierte Koordinate dar.
+
 
 \subsection{Weitere Maßnahmen}
 
