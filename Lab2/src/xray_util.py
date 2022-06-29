@@ -26,7 +26,7 @@ def get_dicom_list(path_of_folder: str) -> typing.List[dicom.FileDataset]:
 
 
 def read_and_save_list_of_dicom_paths(list_of_file_paths: typing.List[str]) -> typing.List[dicom.FileDataset]:
-    dict_of_ds: typing.Dict[typing.Union[str, int], dicom.FileDataset] = {}  # typing.Union[dicom.FileDataset, typing.List]
+    dict_of_ds: typing.Dict[typing.Union[str, int], dicom.FileDataset] = {}
     for file in list_of_file_paths:
         try:
             ds: dicom.FileDataset = dicom.dcmread(str(file))
@@ -50,9 +50,12 @@ def get_images(dicom_list: typing.List[dicom.FileDataset]) -> typing.List[np.nda
     return ret
 
 
-def print_header(image: dicom.FileDataset):
-    print(image)
+def print_header(ds: dicom.FileDataset):
+    print(ds)
 
+
+def print_meta(ds: dicom.FileDataset):
+    pass
 
 def display_slice(image: np.ndarray):
     plt.imshow(image, cmap='gray')
